@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import apiRouter from './routes/api.js'; // <-- Make sure this exists
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Backend is running!' });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
