@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 import sendEmail from '../utils/sendEmail.js';
+import getEmailTemplate from '../utils/emailTemplates.js';
 import crypto from 'crypto';
 
 // @desc    Register a new user
@@ -30,26 +31,25 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
-        // Send verification email
+        // Send verification email with beautiful HTML template
         const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-        const message = `Please verify your email by clicking the link: ${verificationUrl}`;
+        const htmlContent = getEmailTemplate('verification', { verificationUrl });
 
         try {
             await sendEmail({
                 email: user.email,
-                subject: 'HeartDrop Email Verification',
-                message,
+                subject: '💖 Welcome to HeartDrop - Verify Your Email',
+                message: `Please verify your email by clicking this link: ${verificationUrl}`,
+                html: htmlContent,
             });
 
             res.status(201).json({
                 _id: user._id,
                 email: user.email,
-                message: 'Registration successful. Please check your email to verify your account.',
+                message: 'Registration successful! Please check your email to verify your account.',
             });
         } catch (error) {
-            console.error(error);
-            // If email fails, we might want to delete the user or allow resend. 
-            // For now, we'll just return success but log error.
+            console.error('Email send error:', error);
             res.status(201).json({
                 _id: user._id,
                 email: user.email,
