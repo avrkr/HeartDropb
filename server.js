@@ -1,8 +1,6 @@
-// server.js
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import apiRouter from './routes/api.js'; // <-- Make sure this exists
 
 dotenv.config();
 
@@ -15,18 +13,21 @@ app.use(cors({
   credentials: true
 }));
 
-// Middleware
 app.use(express.json());
 
-// Routes
-app.use('/api', apiRouter);
-
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Backend is running!' });
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Backend is connected!' });
 });
 
-// Start server
+// API routes
+app.get('/api/data', (req, res) => {
+  res.json({ 
+    message: 'Hello from backend!',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Backend server running on port ${PORT}`);
 });
