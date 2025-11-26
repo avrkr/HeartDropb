@@ -31,31 +31,28 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
-        // Send verification email with beautiful HTML template
+        // Send verification email asynchronously (non-blocking for faster response)
         const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
         const htmlContent = getEmailTemplate('verification', { verificationUrl });
 
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: '💖 Welcome to HeartDrop - Verify Your Email',
-                message: `Please verify your email by clicking this link: ${verificationUrl}`,
-                html: htmlContent,
-            });
+        // Fire and forget - don't wait for email to send
+        sendEmail({
+            email: user.email,
+            subject: '💖 Welcome to HeartDrop - Verify Your Email',
+            message: `Please verify your email by clicking this link: ${verificationUrl}`,
+            html: htmlContent,
+        }).then(() => {
+            console.log(`✅ Verification email sent successfully to ${user.email}`);
+        }).catch((error) => {
+            console.error(`❌ Failed to send verification email to ${user.email}:`, error.message);
+        });
 
-            res.status(201).json({
-                _id: user._id,
-                email: user.email,
-                message: 'Registration successful! Please check your email to verify your account.',
-            });
-        } catch (error) {
-            console.error('Email send error:', error);
-            res.status(201).json({
-                _id: user._id,
-                email: user.email,
-                message: 'Registration successful, but email failed to send. Please contact support.',
-            });
-        }
+        // Return success immediately without waiting for email
+        res.status(201).json({
+            _id: user._id,
+            email: user.email,
+            message: 'Registration successful! Please check your email to verify your account.',
+        });
     } else {
         res.status(400).json({ message: 'Invalid user data' });
     }
