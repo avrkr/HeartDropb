@@ -1,8 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import confessionRoutes from './routes/confessionRoutes.js';
+import replyRoutes from './routes/replyRoutes.js';
 
 dotenv.config();
+
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,17 +21,13 @@ app.use(cors({
 
 app.use(express.json());
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Backend is connected!' });
-});
-
 // API routes
-app.get('/api/data', (req, res) => {
-  res.json({ 
-    message: 'Hello from backend!',
-    timestamp: new Date().toISOString()
-  });
+app.use('/api/auth', authRoutes);
+app.use('/api/confessions', confessionRoutes);
+app.use('/api/replies', replyRoutes);
+
+app.get('/', (req, res) => {
+  res.send('API is running...');
 });
 
 app.listen(PORT, () => {
